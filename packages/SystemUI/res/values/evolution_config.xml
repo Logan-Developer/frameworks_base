@@ -14,7 +14,7 @@
 
     <!-- Max visible notification icons -->
     <integer name="config_maxVisibleNotificationIcons">4</integer>
-    <integer name="config_maxVisibleNotificationIconsOnLock">5</integer>
+    <integer name="config_maxVisibleNotificationIconsOnLock">3</integer>
 
     <!-- Doze: does the single tap sensor need a proximity check? -->
     <bool name="doze_single_tap_proximity_check">false</bool>
@@ -108,4 +108,7 @@
          the sensor embedded in the power key and listening all the time
          causes a poor experience. -->
     <bool name="config_fingerprintWakeAndUnlock">true</bool>
+
+    <!-- Max visible status icons -->
+    <integer name="config_maxVisibleStatusIcons">7</integer>
 </resources>
