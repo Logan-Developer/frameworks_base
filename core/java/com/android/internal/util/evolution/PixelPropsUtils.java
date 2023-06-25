@@ -60,9 +60,9 @@ public class PixelPropsUtils {
     private static final Map<String, Object> propsToChangeXP5;
     private static final Map<String, Object> propsToChangeOP8P;
     private static final Map<String, Object> propsToChangeOP9P;
-    private static final Map<String, Object> propsToChange11T;
+    private static final Map<String, Object> propsToChangeMI11T;
     private static final Map<String, Object> propsToChangeMI13P;
-    private static final Map<String, Object> propsToChangeF4;
+    private static final Map<String, Object> propsToChangeF5;
     private static final Map<String, Object> propsToChangeK30U;
     private static final Map<String, Object> propsToChangeMeizu;
     private static final Map<String, ArrayList<String>> propsToKeep;
@@ -170,7 +170,7 @@ public class PixelPropsUtils {
     };
 
     // Packages to Spoof as Mi 11T
-    private static final String[] packagesToChange11T = {
+    private static final String[] packagesToChangeMI11T = {
             "com.ea.gp.apexlegendsmobilefps",
             "com.levelinfinite.hotta.gp",
             "com.supercell.clashofclans",
@@ -183,8 +183,8 @@ public class PixelPropsUtils {
             "com.tencent.tmgp.sgame"
     };
 
-    // Packages to Spoof as POCO F4
-    private static final String[] packagesToChangeF4 = {
+    // Packages to Spoof as POCO F5
+    private static final String[] packagesToChangeF5 = {
             "com.dts.freefiremax",
             "com.dts.freefireth"
     };
@@ -277,16 +277,16 @@ public class PixelPropsUtils {
         propsToChangeOP9P = new HashMap<>();
         propsToChangeOP9P.put("MODEL", "LE2123");
         propsToChangeOP9P.put("MANUFACTURER", "OnePlus");
-        propsToChange11T = new HashMap<>();
-        propsToChange11T.put("MODEL", "21081111RG");
-        propsToChange11T.put("MANUFACTURER", "Xiaomi");
+        propsToChangeMI11T = new HashMap<>();
+        propsToChangeMI11T.put("MODEL", "21081111RG");
+        propsToChangeMI11T.put("MANUFACTURER", "Xiaomi");
         propsToChangeMI13P = new HashMap<>();
         propsToChangeMI13P.put("BRAND", "Xiaomi");
         propsToChangeMI13P.put("MANUFACTURER", "Xiaomi");
         propsToChangeMI13P.put("MODEL", "2210132C");
-        propsToChangeF4 = new HashMap<>();
-        propsToChangeF4.put("MODEL", "22021211RG");
-        propsToChangeF4.put("MANUFACTURER", "Xiaomi");
+        propsToChangeF5 = new HashMap<>();
+        propsToChangeF5.put("MODEL", "23049PCD8G");
+        propsToChangeF5.put("MANUFACTURER", "Xiaomi");
         propsToChangeMeizu = new HashMap<>();
         propsToChangeMeizu.put("BRAND", "meizu");
         propsToChangeMeizu.put("MANUFACTURER", "Meizu");
@@ -308,6 +308,7 @@ public class PixelPropsUtils {
         if (packageName == null || packageName.isEmpty()) {
             return;
         }
+        Map<String, Object> propsToChange = new HashMap<>();
         if (packageName.startsWith("com.google.")
                 || packageName.startsWith(SAMSUNG)
                 || Arrays.asList(customGoogleCameraPackages).contains(packageName)
@@ -318,8 +319,6 @@ public class PixelPropsUtils {
                     || packageName.startsWith("com.google.android.GoogleCamera")) {
                 return;
             }
-
-            Map<String, Object> propsToChange = new HashMap<>();
 
             boolean isPixelDevice = Arrays.asList(pixelCodenames).contains(SystemProperties.get(DEVICE));
 
@@ -336,94 +335,40 @@ public class PixelPropsUtils {
                 if (isPixelDevice) return;
                 propsToChange.putAll(propsToChangePixel5);
             }
-
-            dlog("Defining props for: " + packageName);
-            for (Map.Entry<String, Object> prop : propsToChange.entrySet()) {
-                String key = prop.getKey();
-                Object value = prop.getValue();
-                if (propsToKeep.containsKey(packageName) && propsToKeep.get(packageName).contains(key)) {
-                    dlog("Not defining " + key + " prop for: " + packageName);
-                    continue;
-                }
-                dlog("Defining " + key + " prop for: " + packageName);
-                setPropValue(key, value);
-            }
-            // Set proper indexing fingerprint
-            if (packageName.equals(PACKAGE_SI)) {
-                setPropValue("FINGERPRINT", String.valueOf(Build.TIME));
-            }
-        } else {
-
-            if ((SystemProperties.getBoolean(SPOOF_MUSIC_APPS, false)) &&
+        } else if (Arrays.asList(packagesToChangeK30U).contains(packageName)) {
+            propsToChange.putAll(propsToChangeK30U);
+        } else if (Arrays.asList(packagesToChangeROG6).contains(packageName)) {
+            propsToChange.putAll(propsToChangeROG6);
+        } else if (Arrays.asList(packagesToChangeXP5).contains(packageName)) {
+            propsToChange.putAll(propsToChangeXP5);
+        } else if (Arrays.asList(packagesToChangeOP8P).contains(packageName)) {
+            propsToChange.putAll(propsToChangeOP8P);
+        } else if (Arrays.asList(packagesToChangeMI11T).contains(packageName)) {
+            propsToChange.putAll(propsToChangeMI11T);
+        } else if (Arrays.asList(packagesToChangeMI13P).contains(packageName)) {
+            propsToChange.putAll(propsToChangeMI13P);
+        } else if (Arrays.asList(packagesToChangeOP9P).contains(packageName)) {
+            propsToChange.putAll(propsToChangeOP9P);
+        } else if (Arrays.asList(packagesToChangeF5).contains(packageName)) {
+            propsToChange.putAll(propsToChangeF5);
+        } else if ((SystemProperties.getBoolean(SPOOF_MUSIC_APPS, false)) &&
                 (Arrays.asList(packagesToChangeMeizu).contains(packageName))) {
-                dlog("Defining props for: " + packageName);
-                for (Map.Entry<String, Object> prop : propsToChangeMeizu.entrySet()) {
-                    String key = prop.getKey();
-                    Object value = prop.getValue();
-                    setPropValue(key, value);
-                }
+            propsToChange.putAll(propsToChangeMeizu);
+        }
+        dlog("Defining props for: " + packageName);
+        for (Map.Entry<String, Object> prop : propsToChange.entrySet()) {
+            String key = prop.getKey();
+            Object value = prop.getValue();
+            if (propsToKeep.containsKey(packageName) && propsToKeep.get(packageName).contains(key)) {
+                dlog("Not defining " + key + " prop for: " + packageName);
+                continue;
             }
-
-            if (!SystemProperties.getBoolean("persist.sys.pixelprops.games", false))
-                return;
-
-            if (Arrays.asList(packagesToChangeROG6).contains(packageName)) {
-                dlog("Defining props for: " + packageName);
-                for (Map.Entry<String, Object> prop : propsToChangeROG6.entrySet()) {
-                    String key = prop.getKey();
-                    Object value = prop.getValue();
-                    setPropValue(key, value);
-                }
-            } else if (Arrays.asList(packagesToChangeXP5).contains(packageName)) {
-                dlog("Defining props for: " + packageName);
-                for (Map.Entry<String, Object> prop : propsToChangeXP5.entrySet()) {
-                    String key = prop.getKey();
-                    Object value = prop.getValue();
-                    setPropValue(key, value);
-                }
-            } else if (Arrays.asList(packagesToChangeOP8P).contains(packageName)) {
-                dlog("Defining props for: " + packageName);
-                for (Map.Entry<String, Object> prop : propsToChangeOP8P.entrySet()) {
-                    String key = prop.getKey();
-                    Object value = prop.getValue();
-                    setPropValue(key, value);
-                }
-            } else if (Arrays.asList(packagesToChangeOP9P).contains(packageName)) {
-                dlog("Defining props for: " + packageName);
-                for (Map.Entry<String, Object> prop : propsToChangeOP9P.entrySet()) {
-                    String key = prop.getKey();
-                    Object value = prop.getValue();
-                    setPropValue(key, value);
-                }
-            } else if (Arrays.asList(packagesToChangeK30U).contains(packageName)) {
-                if (DEBUG) Log.d(TAG, "Defining props for: " + packageName);
-                for (Map.Entry<String, Object> prop : propsToChangeK30U.entrySet()) {
-                    String key = prop.getKey();
-                    Object value = prop.getValue();
-                    setPropValue(key, value);
-                }
-            } else if (Arrays.asList(packagesToChange11T).contains(packageName)) {
-                dlog("Defining props for: " + packageName);
-                for (Map.Entry<String, Object> prop : propsToChange11T.entrySet()) {
-                    String key = prop.getKey();
-                    Object value = prop.getValue();
-                    setPropValue(key, value);
-                }
-            } else if (Arrays.asList(packagesToChangeMI13P).contains(packageName)) {
-                dlog("Defining props for: " + packageName);
-                for (Map.Entry<String, Object> prop : propsToChangeMI13P.entrySet()) {
-                    String key = prop.getKey();
-                    Object value = prop.getValue();
-                    setPropValue(key, value);
-                }
-            } else if (Arrays.asList(packagesToChangeF4).contains(packageName)) {
-                dlog("Defining props for: " + packageName);
-                for (Map.Entry<String, Object> prop : propsToChangeF4.entrySet()) {
-                    String key = prop.getKey();
-                    Object value = prop.getValue();
-                    setPropValue(key, value);
-                }
-            }
+            dlog("Defining " + key + " prop for: " + packageName);
+            setPropValue(key, value);
+        }
+        // Set proper indexing fingerprint
+        if (packageName.equals(PACKAGE_SI)) {
+            setPropValue("FINGERPRINT", String.valueOf(Build.TIME));
         }
     }
 
